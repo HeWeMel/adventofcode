@@ -6,15 +6,6 @@ import functools
 with open('input.txt') as f:
     lines = f.readlines()  # # read complete file, results in list of lines with endings
 
-# For using test input instead of file input rename from lines_example to lines
-linesexample = '''
-F10
-N3
-F7
-R90
-F11
-'''[1:-1].split('\n')  # split example in lines, keep line endings
-
 nav = []
 for str in lines:
     str = str.rstrip('\n')
