@@ -26,7 +26,7 @@ for (b, p) in busses[1:]:     # Leave out first bus. Time and jumps are already 
     # previous busses an the current bus stays fulfilled. That ist the LCM (least
     # common multiple. LCM (a,b) = abs(a*b) // gcd(a,b) is used to calculate the LCM.
     # BTW: For the given data, the gcd is 1, since the bus numbers have no common
-    # divisor. Thus, the LCM (a,) is here simply a * b. Bus this is input specific.
+    # divisor. Thus, the LCM (a,b) is here simply a * b. Bus this is input specific.
     jumps = abs(jumps * b) // math.gcd(jumps, b)
     #print ('step:', n, b, p, time, jumps)
 
