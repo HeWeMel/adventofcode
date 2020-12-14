@@ -2,15 +2,12 @@ import sys
 import re
 import itertools
 import functools
+import collections
 
 with open('input.txt') as f:
     lines = f.readlines()  # # read complete file, results in list of lines with endings
 
-mem=dict()                                                  # emulates the computer memory
-def getMem(adr):                                            # writing is done directly, thus only get implemented here
-    if adr not in mem:
-        return 0
-    return mem[adr]
+mem = collections.defaultdict(int)      # default factory function int returns 0 for get on nonexistent keys
 
 orm=0           # Just to get rid of IDE warning, that orm might get used uninitialized
 floatXors=[]    # Just to get rid of IDE warning, that floatXors might get used uninitialized
