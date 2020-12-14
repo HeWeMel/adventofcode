@@ -42,7 +42,7 @@ for s in lines:
         c = int(p)
         print("mem", adr, p)
         adrn = adr | orm                                    # the or effect of the mask can be done in binary
-        adrns = '{0:36b}'.format(adrn).replace(" ", "0")    # address to binary padded with space, space to "0"
+        adrns = '{0:036b}'.format(adrn)                     # address to binary padded with space, space to "0"
         for astr in do_float( [ adrns ], floatmask):        # floating is done in function
             mem[int(astr)] = c                              # for all floated addresses, store value to it
     else:
