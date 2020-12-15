@@ -6,7 +6,7 @@ s = '13,16,0,12,15,1'
 round, lastcalled = 1, collections.defaultdict( (lambda: None) )
 for ns in s.split(','):
     n = int(ns)
-    prevcalled, lastcalled[n], round = lastcalled[ int(ns) ], round, round + 1
+    prevcalled, lastcalled[n], round = lastcalled[n], round, round + 1
 
 # round = number of next round, n = number last spoken, prevcalled = none or previous round when n has been spoken
 while round <= 2020:
