@@ -3,9 +3,7 @@ import collections
 # input
 s = '13,16,0,12,15,1'
 
-lastcalled = collections.defaultdict( (lambda: None) )
-
-round = 1
+round, lastcalled = 1, collections.defaultdict( (lambda: None) )
 for ns in s.split(','):
     n = int(ns)
     prevcalled, lastcalled[n], round = lastcalled[ int(ns) ], round, round + 1
