@@ -1,5 +1,5 @@
 # Parser für die Grundrechenarten über Integer
-# In line 31+32 and 44+45, addop and multop exchanged, since AOC task required exchanged priority
+# Priority of addop and multop exchanged (made wring!), since AOC task required this exchanged priority
 
 from pyparsing import (
     Literal,
@@ -12,41 +12,13 @@ from pyparsing import (
 )
 import operator
 
+
+# stack for parsing nodes, that is build during parsing
 exprStack = []
-
-
 def push_first(toks):
     exprStack.append(toks[0])
 
-
-bnf = None
-
-
-def BNF():
-    """
-    multop  :: '*' | '/'
-    addop   :: '+' | '-'
-    integer :: ['+' | '-'] '0'..'9'+
-    atom    :: integer | '(' expr ')'
-    term    :: atom [ addop atom ]*
-    expr    :: term [ multop term ]*
-    """
-    global bnf
-    if not bnf:
-        intNumber = Word(nums)
-        plus, minus, mult, div = map(Literal, "+-*/")
-        lpar, rpar = map(Suppress, "()")
-        addop = plus | minus
-        multop = mult | div
-
-        expr = Forward()
-        atom = intNumber.setParseAction(push_first) | Group(lpar + expr + rpar)
-        term = atom + (addop + atom).setParseAction(push_first)[...]
-        expr <<= term + (multop + term).setParseAction(push_first)[...]  # <<= sets following exp as body of last forward
-        bnf = expr
-    return bnf
-
-
+# operations for evaluate_stack function
 opn = {
     "+": operator.add,
     "-": operator.sub,
@@ -54,7 +26,7 @@ opn = {
     "/": operator.floordiv
 }
 
-
+# evaluate node stack that resulted from parting
 def evaluate_stack(s):
     op, num_args = s.pop(), 0
     if op in "+-*/^":
@@ -65,11 +37,28 @@ def evaluate_stack(s):
     else:
         return int(op)
 
+# grammar
+intNumber = Word(nums)
+plus, minus, mult, div = map(Literal, "+-*/")
+lpar, rpar = map(Suppress, "()")
 
+addop = plus | minus
+multop = mult | div
+
+expr = Forward()
+atom = intNumber.setParseAction(push_first) | Group(lpar + expr + rpar)
+# attention: for AOC task, priority of addop and multop exchanged by exchanging them in the grammar
+term = atom + (addop + atom).setParseAction(push_first)[...]
+expr <<= term + (multop + term).setParseAction(push_first)[...]  # <<= sets following exp as body of last forward
+grammar = expr
+
+
+# parse and evaluate an expression
 def eval(s):
     exprStack[:] = []
+    print(exprStack)
     try:
-        results = BNF().parseString(s, parseAll=True)
+        results = grammar.parseString(s, parseAll=True)
         val = evaluate_stack(exprStack[:])
     except ParseException as pe:
         print(s, "failed parse:", str(pe))
