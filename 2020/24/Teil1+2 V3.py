@@ -25,15 +25,14 @@ def flipTile(pos):
     else:
         blackTiles.add(pos)
 
-for s in lines:
-    s = list(s.rstrip('\n'))    # List of chars
-    x, y = 0, 0
-    while len(s) > 0:
+for s in lines:  # for each list of commands
+    s = list(s.rstrip('\n'))    # commands in list of chars
+    x, y = 0, 0  # start at this tile position
+    while len(s) > 0:   # go through the commands
         c = s.pop(0) if s[0] in move else s.pop(0)+s.pop(0)  # get a one or two character move command
         dx, dy = move[c]  # get coordinate difference that the command should result in
         x, y = x + dx, y + dy  # make those steps
-    flipTile((x, y))
-
+    flipTile((x, y))  # flip tile at end position of the walk
 print("part1:", len(blackTiles))
 #  411
 
@@ -41,7 +40,7 @@ print("part1:", len(blackTiles))
 # ---------- part 2 --------------
 diffs = list(iter(move.values()))   # all (x, y) steps that any of the moves can result in
 for day in range(100):
-    tiles = blackTiles.copy()  # calculate all tile positions, where tile is black itself or ...
+    tiles = blackTiles.copy()  # calculate set of tile positions, where tile is black itself or ...
     for (x, y) in blackTiles:
         for xd, yd in diffs:
             tiles.add((x + xd, y + yd))  # ... tile at that position has at least one black neighbor.
@@ -49,9 +48,8 @@ for day in range(100):
     for (x, y) in tiles:    # iterate through those tile positions, because for them, flipping might occur
         blackNeighbors = len([1 for xd, yd in diffs if (x + xd, y + yd) in blackTiles])  # number of black neighbors
         if (blackNeighbors == 0 or blackNeighbors > 2) if (x, y) in blackTiles else blackNeighbors == 2:
-            flipTiles.append((x, y))  # apply flipping rules to determine if tile has to be flipped
-    for (x, y) in flipTiles:    # flip the tiles that are to be flipped
+            flipTiles.append((x, y))  # if, according to flipping rules, tile has to be flipped, store it in a list
+    for (x, y) in flipTiles:    # flip the tiles in the list
         flipTile((x, y))
-
 print("part2:", len(blackTiles))
 #  4092
