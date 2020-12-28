@@ -21,7 +21,8 @@ lines_example = '''
 
 intAsChars = list(map(str, range(10)))
 charOpToOp = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.floordiv, }
-strongOpChars = set( ['+', '-'] )
+strongOpChars = {'+', '-'}
+
 
 def evaluate_value_or_brackets(tokens):
     # print("> value or brackets", tokens)
@@ -41,6 +42,7 @@ def evaluate_value_or_brackets(tokens):
         return v
     else:
         raise RuntimeError("number or brackets expected, but found:", c, "after string", tokens)
+
 
 def evaluate_strong_expression(tokens):
     # print("> strong expression", tokens)
@@ -73,12 +75,14 @@ def evaluate_expression(tokens):
     # print("< expression", s, ":", left_v, op, v)
     return r
 
+
 def evaluate(s):
     tokens = collections.deque(s)
     v = evaluate_expression(tokens)
     if len(tokens) != 0:
         raise RuntimeError("unmatched tokens:", tokens)
     return v
+
 
 total = 0
 for line in lines:
