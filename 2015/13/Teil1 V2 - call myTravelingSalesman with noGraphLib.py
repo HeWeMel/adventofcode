@@ -31,7 +31,7 @@ def solve(puzzle_id, happiness):
     if length is None:  # not found
         return None
     print("found longest path for problem:", length)
-    print([path.traverse()])
+    print([path._traverse()])
     print()
     return length
 
