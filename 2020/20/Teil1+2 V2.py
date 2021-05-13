@@ -42,9 +42,9 @@ print("tileDim", tilesNoInLine)
 print()
 
 
-print('--- configure tiles in matrix (position, rotation, flip) with, in overlapping, consistent borders ----')
+print('--- configure tiles in TSP_br17 (position, rotation, flip) with, in overlapping, consistent borders ----')
 
-# for each tile in the matrix, store name, rotation, flip and resulting border in dictionaries
+# for each tile in the TSP_br17, store name, rotation, flip and resulting border in dictionaries
 tileNameAtPos = dict()
 rotAtPos = dict()
 flipAtPos = dict()
@@ -54,7 +54,7 @@ tileBorderAtPos = dict()
 # for a given partial configuration up to previous tile, continue with next tile at tilePos
 # with the tiles in tileNames
 def configTiles(tilePos, tileNames):
-    posY, posX = tilePos // tilesNoInLine, tilePos % tilesNoInLine  # y/x of tile in matrix
+    posY, posX = tilePos // tilesNoInLine, tilePos % tilesNoInLine  # y/x of tile in TSP_br17
     for tileName in tileNames:  # at that position, try each of the given tiles
         t1, r1, b1, l1 = tilesBorder[tileName]
         for rot in range(4):  # try every possible rotation
@@ -63,12 +63,12 @@ def configTiles(tilePos, tileNames):
             for flip in range(2):  # try both without and with vertical flip
                 if flip > 0 or rot > 0:
                     t1, r1, b1, l1 = revstr(b1), revstr(r1), revstr(t1), revstr(l1)  # vertical flip border once
-                if posX != 0:  # if there is a left neighbor in matrix
+                if posX != 0:  # if there is a left neighbor in TSP_br17
                     t2, r2, b2, l2 = tileBorderAtPos[tilePos - 1]
                     if r2 != revstr(l1):  # check, if its right boarder fits my left boarder, both top to bottom
                         ok = False
                         continue
-                if posY != 0:  # if there is a neighbor above in matrix
+                if posY != 0:  # if there is a neighbor above in TSP_br17
                     t2, r2, b2, l2 = tileBorderAtPos[tilePos - tilesNoInLine]
                     if revstr(b2) != t1:  # check, if its bottom boarder fits my top boarder, both left to right
                         ok = False

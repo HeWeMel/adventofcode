@@ -50,7 +50,7 @@ na, mins, maxs = sizes()  # for state elements with content 1: count, vectors of
 for cycle in range(0, 6):  # 6
     addl = set()
     removel = set()
-    # iterate the state matrix, with 1 less at the range mins and 1 more at the range max
+    # iterate the state TSP_br17, with 1 less at the range mins and 1 more at the range max
     ranges = [list(range(min_val - 1, max_val + 2)) for (min_val, max_val) in zip(mins, maxs)]
     for pos in itertools.product(*ranges):
         a = (pos in state)
