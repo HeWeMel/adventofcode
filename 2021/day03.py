@@ -15,27 +15,17 @@ class PartA(Day):
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        lst = d.words[:]
-        for b in range(12):
-            l = len(lst)
-            c1 = sum(int(i[b]) for i in lst)
-            bit = str(int(l//2 <= c1))
-            lst = [i for i in lst if i[b] == bit]
-            if len(lst) == 1:
-                break
-        ogn = int(lst[0], 2)
-
-        lst = d.words[:]
-        for b in range(12):
-            l = len(lst)
-            c1 = sum(int(i[b]) for i in lst)
-            bit = str(int(c1 < l//2))
-            lst = [i for i in lst if i[b] == bit]
-            if len(lst) == 1:
-                break
-        csr = int(lst[0], 2)
-
-        return ogn * csr
+        def result(more_ones):
+            lst = d.words[:]
+            for b in range(12):
+                l = len(lst)
+                c1 = sum(int(i[b]) for i in lst)
+                bit = "1" if ((l//2 <= c1) == more_ones) else "0"
+                lst = [i for i in lst if i[b] == bit]
+                if len(lst) == 1:
+                    break
+            return int(lst[0], 2)
+        return result(True) * result(False)
 
 
 Day.do_day(day=3, year=2021, part_a=PartA, part_b=PartB)
