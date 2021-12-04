@@ -4,16 +4,16 @@ import re
 
 class PartA(Day):
     def parse(self, text, d):  # store puzzle parsing result data into attributes of d
-        blocks = [block.replace("\n", " ") for block in text.split("\n\n")]
-        d.draws = [int(i) for i in blocks[0].split(",")]
-        boards = blocks[1:]
+        blocks_of_ints = [[int(i) for i in re.findall(r"[0-9]+", block.replace("\n", " "))]
+                       for block in text.split("\n\n")]
 
-        d.blocks_ints = []
-        d.columns_ints = []
-        d.rows_ints = []
+        d.draws = blocks_of_ints[0]
 
-        for block in boards:
-            i_gen = (int(i) for i in re.findall(r"[0-9]+", block))
+        d.numbers = []  # from block number to numbers in block
+        d.rows_and_columns = []  # from block number to row and number sets withs their numbers
+
+        for block in blocks_of_ints[1:]:
+            i_gen = (i for i in block)
 
             columns = [set() for i in range(5)]
             rows = [set() for i in range(5)]
@@ -24,25 +24,23 @@ class PartA(Day):
                     fields.add(i)
                     columns[x].add(i)
                     rows[y].add(i)
-            d.blocks_ints.append(fields)
-            d.columns_ints.append(columns)
-            d.rows_ints.append(rows)
-        d.player_count = len(d.blocks_ints)
+            d.numbers.append(fields)
+            d.rows_and_columns.append(columns + rows)
+        d.player_count = len(d.numbers)
 
     def play(self, d, first_wins):
         winners = set()
         for draw in d.draws:
-            for block in range(len(d.blocks_ints)):
+            for block in range(d.player_count):
                 if block in winners:
                     continue
-                d.blocks_ints[block].discard(draw)
-                for c in range(5):
-                    d.columns_ints[block][c].discard(draw)
-                    d.rows_ints[block][c].discard(draw)
-                    if len(d.columns_ints[block][c]) == 0 or len(d.rows_ints[block][c]) == 0:
+                d.numbers[block].discard(draw)
+                for group in d.rows_and_columns[block]:
+                    group.discard(draw)
+                    if len(group) == 0:
                         winners.add(block)
                         if first_wins or len(winners) == d.player_count:
-                            return sum(i for i in d.blocks_ints[block]) * draw
+                            return sum(i for i in d.numbers[block]) * draw
         return None
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
