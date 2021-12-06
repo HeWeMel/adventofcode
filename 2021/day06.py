@@ -5,24 +5,21 @@ import collections
 
 class PartA(Day):
     def parse(self, text, d):  # store puzzle parsing result data into attributes of d
-        d.list = [int(n) for n in text.split(",")]  # 0,1,2,3
+        d.list = [int(n) for n in text.split(",")]
 
-    def do(self, d, days):
-        s = collections.Counter(d.list)
-
+    @staticmethod
+    def do(d, days):
+        population = collections.Counter(d.list)
         for day in range(days):
-            fnew = 0
-            fup = defaultdict(int)
-            for fs in s.items():
-                f, c = fs
+            population_next = defaultdict(int)
+            for f, c in population.items():
                 f -= 1
                 if f < 0:
                     f = 6
-                    fnew += c
-                fup[f] += c
-            fup[8] += fnew
-            s = fup
-        r = sum(s.values())
+                    population_next[8] += c
+                population_next[f] += c
+            population = population_next
+        r = sum(population.values())
         return r
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
