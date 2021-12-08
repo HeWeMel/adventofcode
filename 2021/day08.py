@@ -29,9 +29,7 @@ class PartB(PartA):
             perms = itertools.permutations(segments, 7)
             for perm in perms:
                 table = str.maketrans("".join(perm), segments)
-                if sum(1 for p in patterns
-                       if sort_str(p.translate(table)) in correct_patterns
-                       ) == len(patterns):
+                if all((sort_str(p.translate(table)) in correct_patterns) for p in patterns):
                     break
 
             r += int("".join(correct_values[sort_str(p.translate(table))] for p in output_patterns))
