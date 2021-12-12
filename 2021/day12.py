@@ -11,46 +11,27 @@ class PartA(Day):
             d.edges[t].append(f)
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        return go(d, True)
+        return do(d, vertex="start", visited=set(), one_vertex_reusable=False)
 
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        return go(d, False)
+        return do(d, vertex="start", visited=set(), one_vertex_reusable=True)
 
 
-def go(d, one_vertex_reused):
-    visited = set()
-    paths = 0
+def do(d, vertex, visited, one_vertex_reusable):
+    if vertex == "end":
+        return 1
 
-    def do(f):
-        nonlocal visited, paths, one_vertex_reused
-        used_here = False
-        if f in visited:
-            if f in ("start", "end"):
-                return
-            if one_vertex_reused:
-                return
-            else:
-                one_vertex_reused = True
-                used_here = True
+    if vertex in visited:
+        if vertex == "start" or not one_vertex_reusable:
+            return 0
+        one_vertex_reusable = False
 
-        if f.lower() == f:
-            visited.add(f)
+    if vertex.lower() == vertex:
+        visited = visited | {vertex}
 
-        if f == "end":
-            paths += 1
-        else:
-            for t in d.edges[f]:
-                do(t)
-
-        if used_here:
-            one_vertex_reused = False
-        else:
-            visited -= {f}
-
-    do("start")
-    return paths
+    return sum(do(d, t, visited, one_vertex_reusable) for t in d.edges[vertex])
 
 
 Day.do_day(day=12, year=2021, part_a=PartA, part_b=PartB)
