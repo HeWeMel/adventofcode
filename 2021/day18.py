@@ -14,34 +14,27 @@ def reduce_once(fish):  # do one step of reduction, if one of the two rules can 
         if fish[i] == "[":
             depth += 1
             if depth > 4 and fish[i+1] != "[" and fish[i+3] != "[":
-                l_val, r_val = fish[i+1], fish[i+3]  # pair of num, and too deep: explode
-
+                # from position i, we have "[a,b]", a and b num, we and are too deep: explode
                 for j in range(i, 0, -1):  # from left of my opening bracket till begin
                     if fish[j] not in ("[", "]", ","):  # num found: add left value there
-                        fish[j] = fish[j] + l_val
+                        fish[j] += fish[i+1]
                         break
-
                 for j in range(i+5, len(fish)):  # from right of my closing bracket till end
                     if fish[j] not in ("[", "]", ","):  # num found: add right value there
-                        fish[j] = fish[j] + r_val
+                        fish[j] += fish[i+3]
                         break
-
-                return fish[:i] + [0, ] + fish[i+5:]  # replace pair with brackets by 0
+                return fish[:i] + [0, ] + fish[i+5:]  # replace "[a,b]" by 0
         elif fish[i] == "]":
             depth -= 1
     # if there is no pair to explode, find first split case
     for i in range(len(fish)):
-        if fish[i] not in ("[", "]", ","):  # int
-            v = fish[i]
-            if v > 9:
-                return fish[:i] + ["[", v//2, ",", (v+1)//2, "]"] + fish[i+1:]
-    # no rule matches: return fish unchanged
-    return fish
+        if fish[i] not in ("[", "]", ",") and (v := fish[i]) > 9:  # value, and is too high
+            return fish[:i] + ["[", v//2, ",", (v+1)//2, "]"] + fish[i+1:]  # split it up
+    return fish  # no rule matches: return fish unchanged
 
 
 def reduce(fish):  # reduce fish till fix point
-    fn = reduce_once(fish)
-    return fish if fn == fish else reduce(fn)
+    return fish if (fn := reduce_once(fish)) == fish else reduce(fn)
 
 
 def add_two_fish(f1, f2):  # build a pair of the two fish, and reduce result
@@ -53,12 +46,12 @@ def add_all_fish(fish_str):  # from text of fish specification to sum of all fis
 
 
 def eval_fish(fish):  # Recursively evaluate nested data in fish tokens to: (result, unused tokens)
-    if fish[0] == "[":
+    if (c := fish[0]) == "[":
         result1, rest1 = eval_fish(fish[1:])   # eval chars after the opening bracket
         result2, rest2 = eval_fish(rest1[1:])  # eval chars after the comma
         return 3*result1 + 2*result2, rest2[1:]  # rest is everything after the closing bracket
     else:
-        return fish[0], fish[1:]  # evaluate number
+        return c, fish[1:]  # evaluate number
 
 
 class PartA(Day):
