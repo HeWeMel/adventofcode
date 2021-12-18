@@ -15,7 +15,7 @@ def reduce_once(fish):  # do one step of reduction, if one of the two rules can 
             depth += 1
             if depth > 4 and fish[i+1] != "[" and fish[i+3] != "[":
                 # from position i, we have "[a,b]", a and b num, we and are too deep: explode
-                for j in range(i, 0, -1):  # from left of my opening bracket till begin
+                for j in range(i-1, 0, -1):  # from left of my opening bracket till begin
                     if fish[j] not in ("[", "]", ","):  # num found: add left value there
                         fish[j] += fish[i+1]
                         break
