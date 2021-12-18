@@ -21,7 +21,7 @@ def reduce_once(fish):  # do one step of reduction, if one of the two rules can 
                         fish[j] = fish[j] + l_val
                         break
 
-                for j in range(i+4, len(fish)):  # from right of my closing bracket till end
+                for j in range(i+5, len(fish)):  # from right of my closing bracket till end
                     if fish[j] not in ("[", "]", ","):  # num found: add right value there
                         fish[j] = fish[j] + r_val
                         break
