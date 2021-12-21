@@ -31,28 +31,27 @@ class PartA(Day):
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        wins = do(0, d.start_positions, (0, 0))
+        wins = do((d.start_positions[0], 0), (d.start_positions[1], 0))
         return max(wins)
 
 
 @functools.cache
-def do(player, positions, scores):
+def do(pos_and_score1, pos_and_score2):
     wins = [0, 0]
     for d1 in range(1, 4):
         for d2 in range(1, 4):
             for d3 in range(1, 4):
-                new_positions = list(positions)
-                new_scores = list(scores)
-                new_positions[player] += d1 + d2 + d3
-                while new_positions[player] > 10:
-                    new_positions[player] -= 10
-                new_scores[player] += new_positions[player]
-                if new_scores[player] >= 21:
-                    wins[player] += 1
+                pos, score = pos_and_score1
+                pos += d1 + d2 + d3
+                while pos > 10:
+                    pos -= 10
+                score += pos
+                if score >= 21:
+                    wins[0] += 1
                 else:
-                    found_wins = do(1-player, tuple(new_positions), tuple(new_scores))
-                    wins[0] += found_wins[0]
-                    wins[1] += found_wins[1]
+                    found_wins = do(pos_and_score2, (pos, score))  # player in parameters exchanged
+                    wins[1] += found_wins[0]  # found wins of recursive exchanged
+                    wins[0] += found_wins[1]
     return wins
 
 
