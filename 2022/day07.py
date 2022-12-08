@@ -10,39 +10,29 @@ class PartA(Day):
         path = []
         for line in text.splitlines():
             path_tuple = tuple(path)
-            elements = line.split()
-            if elements[0] == "$":
-                command = elements[1]
-                if command == "cd":
-                    cd_dir = elements[2]
-                    if cd_dir == "/":
-                        path = ["/"]
-                    elif cd_dir == "..":
-                        path.pop()
-                    else:
-                        path.append(cd_dir)
-                elif command == "ls":
+            match line.split():
+                case ["$", "cd", "/"]:
+                    path = ["/"]
+                case ["$", "cd", ".."]:
+                    path.pop()
+                case ["$", "cd", cd_dir]:
+                    path.append(cd_dir)
+                case ["$", "ls"]:
                     continue
-                else:
-                    raise RuntimeError("illegal command")
-            else:  # results from ls
-                if elements[0] == "dir":
-                    dir_name = elements[1]
+                case ["$", *others]:
+                    raise RuntimeError("illegal command {}".format(line))
+                case ["dir", dir_name]:
                     local_dirs[path_tuple].add(dir_name)
-                else:
-                    # file
-                    size_txt, file_name = elements
+                case [size_txt, file_name]:
                     if file_name not in local_files[path_tuple]:  # path might be ls'ed twice
                         local_files[path_tuple].add(file_name)
                         local_size[path_tuple] += int(size_txt)
 
-        paths = set(local_size.keys()).union(local_dirs.keys()).union(local_files.keys())
+        paths = set().union(local_size.keys(), local_dirs.keys(), local_files.keys())
         d.global_size = dict()
         for path in reversed(sorted(list(paths))):  # subdirectories before their parents
-            size = local_size[path]
-            for local_dir in local_dirs[path]:
-                size += d.global_size[path + (local_dir,)]
-            d.global_size[path] = size
+            d.global_size[path] = local_size[path] + sum(d.global_size[path + (local_dir,)]
+                                                         for local_dir in local_dirs[path])
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
         return sum(d.global_size[path]
