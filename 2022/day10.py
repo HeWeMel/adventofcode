@@ -2,7 +2,7 @@ from mylib.aoc_frame import Day
 
 
 class PartA(Day):
-    def parse(self, text, d):  # store puzzle parsing result data into attributes of d
+    def parse(self, text, d):
         def run(program):
             x = 1
             for line in program.splitlines():
@@ -16,10 +16,9 @@ class PartA(Day):
 
         d.iterator = run(text)
 
-    def compute(self, d):  # return puzzle result, get parsing data from attributes of d
+    def compute(self, d):
         signal_sum = 0
-        for i, value in enumerate(d.iterator):
-            cycle = i + 1
+        for cycle, value in enumerate(d.iterator, 1):
             if cycle in {20, 60, 100, 140, 180, 220}:
                 signal_sum += cycle * value
         return signal_sum
@@ -173,21 +172,20 @@ noop
 noop
 '''
 
-    def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
+    def tests(self):
         yield self.test_solve(self.example), 13140, "example"
 
 
 class PartB(PartA):
-    def compute(self, d):  # return puzzle result, get parsing data from attributes of d
+    def compute(self, d):
         for screen_y in range(6):
-            screen_line = ""
             for screen_x in range(40):
                 x_register = next(d.iterator)
-                screen_line += ("#" if x_register-1 <= screen_x <= x_register+1 else ".")
-            print(screen_line)
+                print("#" if x_register-1 <= screen_x <= x_register+1 else ".", end="")
+            print()
         return None
 
-    def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
+    def tests(self):
         yield self.test_solve(self.example), None, "example"
 
 
