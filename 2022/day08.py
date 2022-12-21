@@ -25,13 +25,7 @@ class PartA(Day):
         return visible
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        yield self.test_solve('''
-30373
-25512
-65332
-33549
-35390
-'''), 21, "example"
+        yield self.test_solve(example), 21, "example"
 
 
 class PartB(PartA):
@@ -60,13 +54,15 @@ class PartB(PartA):
         return highest_score
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        yield self.test_solve('''
+        yield self.test_solve(example), 8, "example"
+
+
+example = '''
 30373
 25512
 65332
 33549
 35390
-'''), 8, "example"
-
+'''
 
 Day.do_day(day=8, year=2022, part_a=PartA, part_b=PartB)

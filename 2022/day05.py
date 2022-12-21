@@ -31,17 +31,8 @@ class PartA(Day):
         return "".join(d.piles[pile].pop() for pile in d.piles.keys())
 
     def tests(self):  # yield testcases as tuple: (test_input, correct_result [, test_name])
-        yield self.test_solve('''
-    [D]    
-[N] [C]    
-[Z] [M] [P]
- 1   2   3 
+        yield self.test_solve(example), "CMZ", "example"
 
-move 1 from 2 to 1
-move 3 from 1 to 3
-move 2 from 2 to 1
-move 1 from 1 to 2
-'''), "CMZ", "example"
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
@@ -55,7 +46,10 @@ class PartB(PartA):
         return "".join(d.piles[pile].pop() for pile in d.piles.keys())
 
     def tests(self):  # yield testcases as tuple: (test_input, correct_result [, test_name])
-        yield self.test_solve('''
+        yield self.test_solve(example), "MCD", "example"
+
+
+example = '''
     [D]    
 [N] [C]    
 [Z] [M] [P]
@@ -65,7 +59,6 @@ move 1 from 2 to 1
 move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2
-'''), "MCD", "example"
-
+'''
 
 Day.do_day(day=5, year=2022, part_a=PartA, part_b=PartB)

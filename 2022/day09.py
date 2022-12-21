@@ -25,18 +25,7 @@ class PartA(Day):
         return len(positions)
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        # if True is True:  # remove to activate
-        #    return ()
-        yield self.test_solve('''
-R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2
-'''), 13, "example"
+        yield self.test_solve(example1), 13, "example1"
 
 
 class PartB(PartA):
@@ -69,19 +58,9 @@ class PartB(PartA):
                 positions.add((head[0], head[1]))
 
         return len(positions)
+
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        # if True is True:  # remove to activate
-        #    return ()
-        yield self.test_solve('''
-R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2
-'''), 1, "example"
+        yield self.test_solve(example1), 1, "example1"
         yield self.test_solve('''
 R 5
 U 8
@@ -91,7 +70,18 @@ R 17
 D 10
 L 25
 U 20
-'''), 36, "example"
+'''), 36, "example2"
 
+
+example1 = '''
+R 4
+U 4
+L 3
+D 1
+R 4
+D 1
+L 5
+R 2
+'''
 
 Day.do_day(day=9, year=2022, part_a=PartA, part_b=PartB)

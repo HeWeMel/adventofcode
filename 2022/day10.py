@@ -23,7 +23,24 @@ class PartA(Day):
                 signal_sum += cycle * value
         return signal_sum
 
-    example = '''
+    def tests(self):
+        yield self.test_solve(example), 13140, "example"
+
+
+class PartB(PartA):
+    def compute(self, d):
+        for screen_y in range(6):
+            for screen_x in range(40):
+                x_register = next(d.iterator)
+                print("#" if x_register-1 <= screen_x <= x_register+1 else ".", end="")
+            print()
+        return None
+
+    def tests(self):
+        yield self.test_solve(example), None, "example"
+
+
+example = '''
 addx 15
 addx -11
 addx 6
@@ -171,22 +188,5 @@ noop
 noop
 noop
 '''
-
-    def tests(self):
-        yield self.test_solve(self.example), 13140, "example"
-
-
-class PartB(PartA):
-    def compute(self, d):
-        for screen_y in range(6):
-            for screen_x in range(40):
-                x_register = next(d.iterator)
-                print("#" if x_register-1 <= screen_x <= x_register+1 else ".", end="")
-            print()
-        return None
-
-    def tests(self):
-        yield self.test_solve(self.example), None, "example"
-
 
 Day.do_day(day=10, year=2022, part_a=PartA, part_b=PartB)

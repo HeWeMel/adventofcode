@@ -40,31 +40,7 @@ class PartA(Day):
                    if d.global_size[path] <= 100000)
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        yield self.test_solve('''
-$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k
-'''), 95437, "example"
+        yield self.test_solve(example), 95437, "example"
 
 
 class PartB(PartA):
@@ -77,7 +53,10 @@ class PartB(PartA):
         return sorted_sizes[0]
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        yield self.test_solve('''
+        yield self.test_solve(example), 24933642, "example"
+
+
+example = '''
 $ cd /
 $ ls
 dir a
@@ -101,6 +80,6 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k
-'''), 24933642, "example"
+'''
 
 Day.do_day(day=7, year=2022, part_a=PartA, part_b=PartB)

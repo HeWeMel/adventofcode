@@ -14,14 +14,7 @@ class PartA(Day):
                    for a_from, a_to, b_from, b_to in d.int_lines)
 
     def tests(self):  # yield testcases as tuple: (test_input, correct_result [, test_name])
-        yield self.test_solve('''
-2-4,6-8
-2-3,4-5
-5-7,7-9
-2-8,3-7
-6-6,4-6
-2-6,4-8
-'''), 2, "example"
+        yield self.test_solve(example), 2, "example"
 
 
 class PartB(PartA):
@@ -31,14 +24,16 @@ class PartB(PartA):
                    for a_from, a_to, b_from, b_to in d.int_lines)
 
     def tests(self):  # yield testcases as tuple: (test_input, correct_result [, test_name])
-        yield self.test_solve('''
+        yield self.test_solve(example), 4, "example"
+
+
+example = '''
 2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7
 6-6,4-6
 2-6,4-8
-'''), 4, "example"
-
+'''
 
 Day.do_day(day=4, year=2022, part_a=PartA, part_b=PartB)
