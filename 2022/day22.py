@@ -78,36 +78,69 @@ example = '''
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        a: nog.Array = d.array
+        wrapping_number = 1 if d.config is not None else 0  # a
 
-        #         R,      D,      L,       U
+        #         0:R,    1:D,    2:L,     3:U
         moves = ((0, 1), (1, 0), (0, -1), (-1, 0))
 
-        # map_y, map_x, facing -> map_y, map_x, facing, swap_xy, mirror_y, mirror_x
-        wrapping = {
-            (0, 1, 3): (3, 0, 0, True, False, False),
-            (3, 0, 2): (0, 1, 1, True, False, False),
+        # Wrapping per move from one "open" edge to the other.
+        # Symmetric pair are left out, they will be generated afterwards.
+        # Elements: map_y, map_x, facing -> map_y, map_x, facing
+        wrapping = ({
+            # wrapping definition for input data
+            # left / right turns
+            (0, 1, 3): [3, 0, 0],
+            (2, 0, 3): [1, 1, 0],
+            (0, 2, 1): [1, 1, 2],
+            (2, 1, 1): [3, 0, 2],
+            # 0 degrees
+            (0, 2, 3): [3, 0, 3],
+            # 180 degrees
+            (2, 0, 2): [0, 1, 0],
+            (0, 2, 0): [2, 1, 2],
+        }, {
+            # wrapping definition for example data
+            # left / right turns
+            (1, 2, 0): [2, 3, 1],
+            (0, 2, 2): [1, 1, 1],
+            (2, 3, 1): [1, 0, 0],
+            (1, 1, 1): [2, 2, 0],
+            # 0 degrees
+            # 180 degrees
+            (0, 2, 3): [1, 0, 1],
+            (0, 2, 0): [2, 3, 2],
+            (2, 2, 1): [1, 0, 3],
+        })[wrapping_number]
+        wrapping_items = list(wrapping.items())
+        wrapping.update(  # add symmetric edge change, with reversed directions
+            ((to_map_y, to_map_x, (to_dir + 2) % 4), (from_map_y, from_map_x, (from_dir + 2) % 4))
+            for (from_map_y, from_map_x, from_dir), (to_map_y, to_map_x, to_dir)
+            in wrapping_items)
 
-            (0, 2, 3): (3, 0, 3, False, True, False),
-            (3, 0, 1): (0, 2, 1, False, True, False),
-
-            (0, 2, 0): (2, 1, 2, False, True, False),
-            (2, 1, 0): (0, 2, 2, False, True, False),
-
-            (0, 2, 1): (1, 1, 2, True, False, False),
-            (1, 1, 0): (0, 2, 3, True, False, False),
-
-            (2, 1, 1): (3, 0, 2, True, False, False),
-            (3, 0, 0): (2, 1, 3, True, False, False),
-
-            (2, 0, 2): (0, 1, 0, False, True, False),
-            (0, 1, 2): (2, 0, 0, False, True, False),
-
-            (2, 0, 3): (1, 1, 0, True, False, False),
-            (1, 1, 2): (2, 0, 1, True, False, False),
+        dir_change_to_coo_change = {
+            # left / right
+            (3, 0): (True, False, False),  # next is same backwards
+            (2, 1): (True, False, False),
+            (1, 2): (True, False, False),  # next is same backwards
+            (0, 3): (True, False, False),
+            (0, 1): (True, True, True),  # next is same backwards
+            (3, 2): (True, True, True),
+            (1, 0): (True, True, True),  # next is same backwards
+            (2, 3): (True, True, True),
+            (3, 1): (False, False, True),  # back is itself
+            (1, 3): (False, False, True),  # back is itself
+            # -- 180 degree
+            (3, 3): (False, True, False),  # next is same backwards
+            (1, 1): (False, True, False),
+            (2, 0): (False, True, False),  # back is itself
+            (0, 2): (False, True, False),  # back is itself
+            (2, 2): (False, False, True),  # next is same backwards
+            (0, 0): (False, False, True),
         }
 
-        edge_len = (len(d.board)-2) // 4
+        a: nog.Array = d.array
+        max_map_len = max(upper for lower, upper in a.limits()) - 2
+        edge_len = max_map_len // 4
 
         row = 1
         for column in itertools.count(1):
@@ -128,9 +161,9 @@ class PartB(PartA):
                     if next_c == " ":
                         map_y, co_y = divmod(pos[0]-1, edge_len)
                         map_x, co_x = divmod(pos[1]-1, edge_len)
-                        map_y, map_x, next_facing, swap_xy, mirror_y, mirror_x = (
-                            wrapping[(map_y, map_x, facing)])
-
+                        map_y, map_x, next_facing = wrapping[(map_y, map_x, facing)]
+                        swap_xy, mirror_y, mirror_x = dir_change_to_coo_change[
+                            facing, next_facing]
                         if swap_xy:
                             co_y, co_x = co_x, co_y
                         if mirror_x:
@@ -158,7 +191,7 @@ class PartB(PartA):
         return 1000 * pos[0] + 4 * pos[1] + facing
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
-        return ()
+        yield self.test_solve(example, True), 5031, "example"
 
 
 Day.do_day(day=22, year=2022, part_a=PartA, part_b=PartB)
