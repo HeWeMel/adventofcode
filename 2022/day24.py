@@ -9,34 +9,38 @@ class PartA(Day):
     def parse(self, text, d):  # store puzzle parsing result data into attributes of d
         a = nog.Array(text.splitlines())
         moves = nog.Position.moves(zero_move=True)
-
         limits = a.limits()
         blizzard_limits = [(1, high_limit - 1) for low_limit, high_limit in limits]
 
-        d.my_start = nog.Position.at(0, 1)
-        d.my_goal = nog.Position(nog.Position(a.size())+(-1, -2))
+        def blizzard_generator():
+            blizzard_vector = {">": (0, 1), "<": (0, -1), "^": (-1, 0), "v": (1, 0)}
+            blizzard_start_and_vector = tuple((pos, blizzard_vector[c])
+                                              for c in blizzard_vector
+                                              for pos in a.findall(c))
+            blizzards_pos = tuple(pos for pos, vector in blizzard_start_and_vector)
+            blizzards_dir = [vector for pos, vector in blizzard_start_and_vector]
+            while True:
+                blizzards_pos = tuple(
+                    (pos + direction).wrap_to_cuboid(blizzard_limits)
+                    for pos, direction in zip(blizzards_pos, blizzards_dir))
+                yield set(blizzards_pos)
 
-        blizzard_vector = {">": (0, 1), "<": (0, -1), "^": (-1, 0), "v": (1, 0)}
-        blizzard_start_and_vector = tuple((pos, blizzard_vector[c])
-                                          for c in blizzard_vector
-                                          for pos in a.findall(c))
-        d.blizzards_start_pos = tuple(pos for pos, vector in blizzard_start_and_vector)
-        blizzards_dir = [vector for pos, vector in blizzard_start_and_vector]
+        blizzard_iterator = iter(blizzard_generator())
 
         @functools.cache
-        def next_blizzards(blizzards_pos):
-            next_blizzards_pos = tuple(
-                (pos + direction).wrap_to_cuboid(blizzard_limits)
-                for pos, direction in zip(blizzards_pos, blizzards_dir))
-            return next_blizzards_pos, set(next_blizzards_pos)
+        def blizzards(minute):
+            return next(blizzard_iterator)
 
         def next_vertices(state, _):
-            me, blizzards_pos = state
-            next_blizzard_pos, next_blizzard_pos_set = next_blizzards(blizzards_pos)
+            me, minute = state
+            minute += 1
+            next_blizzards = blizzards(minute)
             for next_me in me.neighbors(moves, limits):
-                if a[next_me] != "#" and next_me not in next_blizzard_pos_set:
-                    yield (next_me, next_blizzard_pos), 1
+                if a[next_me] != "#" and next_me not in next_blizzards:
+                    yield (next_me, minute), 1
 
+        d.my_start = nog.Position.at(0, 1)
+        d.my_goal = nog.Position(a.size()) + (-1, -2)
         d.traversal = nog.TraversalAStar(next_vertices)
 
     @staticmethod
@@ -47,10 +51,10 @@ class PartA(Day):
         return distance_to_goal
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        for res_me, res_blizzards_pos in d.traversal.start_from(
-                self.distance_to(d.my_goal), (d.my_start, d.blizzards_start_pos)):
+        for res_me, res_minute in d.traversal.start_from(
+                self.distance_to(d.my_goal), (d.my_start, 0)):
             if res_me == d.my_goal:
-                return d.traversal.depth  # part 1: 242
+                return d.traversal.depth
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
         yield self.test_solve(example, None), 18, "example"
@@ -58,11 +62,10 @@ class PartA(Day):
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        blizzards = d.blizzards_start_pos
         travel_length = 0
+        minute = 0
         for start, goal in itertools.pairwise([d.my_start, d.my_goal, d.my_start, d.my_goal]):
-            for me, blizzards in d.traversal.start_from(
-                    self.distance_to(goal), (start, blizzards)):
+            for me, minute in d.traversal.start_from(self.distance_to(goal), (start, minute)):
                 if me == goal:
                     travel_length += d.traversal.depth
                     break
