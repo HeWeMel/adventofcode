@@ -11,8 +11,7 @@ class PartA(Day):
         moves = nog.Position.moves(zero_move=True)
 
         limits = a.limits()
-        v_mirror = limits[0][1] - 1
-        h_mirror = limits[1][1] - 1
+        blizzard_limits = [(1, high_limit - 1) for low_limit, high_limit in limits]
 
         d.my_start = nog.Position.at(0, 1)
         d.my_goal = nog.Position(nog.Position(a.size())+(-1, -2))
@@ -26,16 +25,10 @@ class PartA(Day):
 
         @functools.cache
         def next_blizzards(blizzards_pos):
-            next_blizzards_pos = []
-            for pos, direction in zip(blizzards_pos, blizzards_dir):
-                next_pos = pos + direction
-                if a[next_pos] == "#":
-                    if direction[0]:  # vertically moving blizzard
-                        next_pos = nog.Position.at(v_mirror - pos[0], pos[1])
-                    else:  # horizontally moving blizzard
-                        next_pos = nog.Position.at(pos[0], h_mirror - pos[1])
-                next_blizzards_pos.append(next_pos)
-            return tuple(next_blizzards_pos), set(next_blizzards_pos)
+            next_blizzards_pos = tuple(
+                (pos + direction).wrap_to_cuboid(blizzard_limits)
+                for pos, direction in zip(blizzards_pos, blizzards_dir))
+            return next_blizzards_pos, set(next_blizzards_pos)
 
         def next_vertices(state, _):
             me, blizzards_pos = state
