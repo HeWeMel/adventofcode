@@ -29,6 +29,9 @@ class PartA(Day):
         for blueprint_no, elements in d.blueprints[:blueprint_limit]:
             print(f"{blueprint_no=}")
 
+            max_needed = [max(elements[robot][product] for robot in range(4))
+                          for product in range(4)]
+
             def next_edges(state, t):
                 minutes_left = minute_limit - t.depth
                 if minutes_left == 1:  # Stop generation options/edges when last minute starts
@@ -36,7 +39,11 @@ class PartA(Day):
                 produces, production = state
                 next_produces = tuple(a + b for a, b in zip(produces, production))
                 blocked_robots_needs = []
+                number_of_buying_options = 0
                 for robot in range(4):  # Report buying this robot, if possible, as option
+                    # Having this robot in future rounds helps to enable buying options?
+                    if robot > 0 and max_needed[robot] <= production[robot]:
+                        continue  # No? Do not buy it
                     costs = elements[robot]
                     if any(c > p for c, p in zip(costs, produces)):  # not possible
                         blocked_robots_needs.append(costs)  # store the costs it would need
@@ -45,11 +52,11 @@ class PartA(Day):
                     # as much as not buying one looses for the rest of the minutes)
                     yield (tuple(n - c for n, c in zip(next_produces, costs)),  # produces-costs
                            tuple(v + 1 if k == robot else v
-                                 for k, v in enumerate(production))  # production[robot] += 1
+                                 for k, v in enumerate(production))   # production[robot] += 1
                            ), 0 if robot == 0 else minutes_left
-                # If no robot can be bought, waiting makes sense. Otherwise, waiting is only
-                # allowed if this unlocks robots in the future.
-                if len(blocked_robots_needs) != 4:
+                    number_of_buying_options += 1
+                if number_of_buying_options > 0:  # No robot can be bought: waiting makes sense
+                    # Otherwise, waiting is only allowed if this unlocks robots in the future.
                     for needs in blocked_robots_needs:
                         if all(a + (minutes_left - 1) * b >= n
                                for a, b, n in zip(produces, production, needs)):
