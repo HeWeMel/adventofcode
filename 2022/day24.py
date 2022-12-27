@@ -1,6 +1,5 @@
 import functools
 import itertools
-
 from mylib.aoc_frame import Day
 import nographs as nog
 
@@ -10,9 +9,9 @@ class PartA(Day):
         a = nog.Array(text.splitlines())
         moves = nog.Position.moves(zero_move=True)
         limits = a.limits()
-        blizzard_limits = [(1, high_limit - 1) for low_limit, high_limit in limits]
 
         def blizzard_generator():
+            blizzard_limits = [(1, dim_size - 1) for dim_size in a.size()]
             blizzard_vector = {">": (0, 1), "<": (0, -1), "^": (-1, 0), "v": (1, 0)}
             blizzard_start_and_vector = tuple((pos, blizzard_vector[c])
                                               for c in blizzard_vector
@@ -31,17 +30,17 @@ class PartA(Day):
         def blizzards(minute):
             return next(blizzard_iterator)
 
-        def next_vertices(state, _):
+        def next_edges(state, _):
             me, minute = state
-            minute += 1
+            next_minute = minute + 1
             next_blizzards = blizzards(minute)
             for next_me in me.neighbors(moves, limits):
                 if a[next_me] != "#" and next_me not in next_blizzards:
-                    yield (next_me, minute), 1
+                    yield (next_me, next_minute), 1
 
         d.my_start = nog.Position.at(0, 1)
         d.my_goal = nog.Position(a.size()) + (-1, -2)
-        d.traversal = nog.TraversalAStar(next_vertices)
+        d.traversal = nog.TraversalAStar(next_edges)
 
     @staticmethod
     def distance_to(goal):
