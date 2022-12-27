@@ -84,7 +84,7 @@ class PartB(PartA):
         moves = ((0, 1), (1, 0), (0, -1), (-1, 0))
 
         # Wrapping per move from one "open" edge to the other.
-        # Symmetric pair are left out, they will be generated afterwards.
+        # Symmetric edge pair moves are left out, they will be generated afterwards.
         # Elements: map_y, map_x, facing -> map_y, map_x, facing
         wrapping = ({
             # wrapping definition for input data
@@ -105,7 +105,6 @@ class PartB(PartA):
             (0, 2, 2): [1, 1, 1],
             (2, 3, 1): [1, 0, 0],
             (1, 1, 1): [2, 2, 0],
-            # 0 degrees
             # 180 degrees
             (0, 2, 3): [1, 0, 1],
             (0, 2, 0): [2, 3, 2],
@@ -116,27 +115,6 @@ class PartB(PartA):
             ((to_map_y, to_map_x, (to_dir + 2) % 4), (from_map_y, from_map_x, (from_dir + 2) % 4))
             for (from_map_y, from_map_x, from_dir), (to_map_y, to_map_x, to_dir)
             in wrapping_items)
-
-        dir_change_to_coo_change = {
-            # left / right
-            (3, 0): (True, False, False),  # next is same backwards
-            (2, 1): (True, False, False),
-            (1, 2): (True, False, False),  # next is same backwards
-            (0, 3): (True, False, False),
-            (0, 1): (True, True, True),  # next is same backwards
-            (3, 2): (True, True, True),
-            (1, 0): (True, True, True),  # next is same backwards
-            (2, 3): (True, True, True),
-            (3, 1): (False, False, True),  # back is itself
-            (1, 3): (False, False, True),  # back is itself
-            # -- 180 degree
-            (3, 3): (False, True, False),  # next is same backwards
-            (1, 1): (False, True, False),
-            (2, 0): (False, True, False),  # back is itself
-            (0, 2): (False, True, False),  # back is itself
-            (2, 2): (False, False, True),  # next is same backwards
-            (0, 0): (False, False, True),
-        }
 
         a: nog.Array = d.array
         max_map_len = max(upper for lower, upper in a.limits()) - 2
@@ -159,19 +137,20 @@ class PartB(PartA):
                     next_facing = facing
                     next_c = a[next_pos]
                     if next_c == " ":
-                        map_y, co_y = divmod(pos[0]-1, edge_len)
-                        map_x, co_x = divmod(pos[1]-1, edge_len)
+                        # determine next map (cube face) and next facing on it
+                        map_y, map_x = ((coo - 1) // edge_len for coo in pos)
                         map_y, map_x, next_facing = wrapping[(map_y, map_x, facing)]
-                        swap_xy, mirror_y, mirror_x = dir_change_to_coo_change[
-                            facing, next_facing]
-                        if swap_xy:
+                        # determine local coordinates of new position on new map
+                        co_y, co_x = ((coo - 1) % edge_len for coo in next_pos)
+                        for i in range(
+                                next_facing - facing if facing <= next_facing
+                                else next_facing + 4 - facing
+                        ):
                             co_y, co_x = co_x, co_y
-                        if mirror_x:
                             co_x = edge_len-1 - co_x
-                        if mirror_y:
-                            co_y = edge_len-1 - co_y
-                        next_pos = nog.Position.at((map_y*edge_len+co_y+1),
-                                                   (map_x*edge_len+co_x+1))
+                        # calculate new global map coordinates and new character on it
+                        next_pos = nog.Position.at((map_y * edge_len + co_y + 1),
+                                                   (map_x * edge_len + co_x + 1))
                         next_c = a[next_pos]
                     if next_c == "#":
                         break
