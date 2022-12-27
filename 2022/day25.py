@@ -1,44 +1,40 @@
+import functools
+
 from aocd.models import Puzzle
 from mylib.aoc_frame import Day
 
+snafu_digit_for_int = dict(enumerate("=-012", -2))
+int_for_snafu_digit = dict(map(reversed, snafu_digit_for_int.items()))
+
+
+def snafu_to_int(s):
+    return functools.reduce(lambda v, c: v * 5 + int_for_snafu_digit[c], s, 0)
+
+
+def int_to_snafu(i):
+    if not i:
+        return ""
+    i, d = divmod(i, 5)
+    if d > 2:
+        d -= 5
+        i += 1
+    return int_to_snafu(i) + snafu_digit_for_int[d]
+
 
 class PartA(Day):
-    @staticmethod
-    def int_to_snafu(i, snafu):
-        res = ""
-        o = 0
-        while i + o:
-            i, d = divmod(i+o, 5)
-            if d > 2:
-                o = 1
-                d -= 5
-            else:
-                o = 0
-            res = snafu[d] + res
-        return res
-
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        test_mode = d.config is True
-
-        snafu = dict(enumerate("=-012", -2))
-        digits = {k: v for v, k in snafu.items()}
+        example_mode = d.config is True
 
         res = 0
         for s in d.text.splitlines():
-            n = 0
-            for c in s:
-                n = n * 5 + digits[c]
+            n = snafu_to_int(s)
             res += n
 
-            # test function int_to_snafu (here, all available data can be used)
-            s2 = self.int_to_snafu(n, snafu)
-            if s != s2:
+            # test our function int_to_snafu (here, all available data can be used)
+            if s != (s2 := int_to_snafu(n)):
                 raise RuntimeError(s, n, s2)
 
-        if test_mode:
-            return res
-        else:
-            return self.int_to_snafu(res, snafu)
+        return res if example_mode else int_to_snafu(res)
 
     def tests(self):  # yield testcases as tuple: (test_result, correct_result [, test_name])
         yield self.test_solve(example, True), 4890, "example"
