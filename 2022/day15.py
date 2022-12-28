@@ -15,7 +15,7 @@ class PartA(Day):
             line.append(dist(sx, sy, bx, by))
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        y = 2000000 if d.test_config is None else d.test_config
+        y = 2000000 if d.config is None else d.config
 
         min_x = min(sx - di for sx, sy, bx, by, di in d.sensors)
         max_x = max(sx + di for sx, sy, bx, by, di in d.sensors)
@@ -34,7 +34,7 @@ class PartA(Day):
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        limit = 4000000 if d.test_config is None else d.test_config
+        limit = 4000000 if d.config is None else d.config
         for y in range(limit+1):
             intervals = []
             for sx, sy, bx, by, di in d.sensors:
