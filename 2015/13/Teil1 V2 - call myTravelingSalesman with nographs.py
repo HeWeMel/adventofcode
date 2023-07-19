@@ -1,10 +1,6 @@
-import sys
-import re
-import itertools
-import functools
 import collections
 import timeit
-from myTravelingSalesman import traveling_salesman, Path
+import nographs as nog
 
 
 def parse(puzzle_id, puzzle: list[str]):
@@ -25,28 +21,20 @@ def parse(puzzle_id, puzzle: list[str]):
     return happiness
 
 
-def solve(puzzle_id, happiness):
-    print("here")
-    length, path = traveling_salesman(happiness, find_longest=True)
-    if length is None:  # not found
-        return None
-    print("found longest path for problem:", length)
-    print([path._traverse()])
-    print()
-    return length
-
-
 def parse_and_solve(puzzle_id, puzzle):
-    result = ''
     start = timeit.default_timer()
 
-    result = solve(puzzle_id, parse(puzzle_id, puzzle))
+    happyness = parse(puzzle_id, puzzle)
+    length, path = nog.traveling_salesman(
+        happyness.keys(), happyness, find_longest=True)
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)
-    print("result for puzzle", puzzle_id, ":", result)
+    print("Result for puzzle", puzzle_id, ":", length)
+    print("Longest path for problem:")
+    print(tuple(path))
 
-    return result
+    return length
 
 
 def solve_and_check(puzzle_id, puzzle, correct_result):
