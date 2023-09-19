@@ -1,5 +1,5 @@
 from mylib.aoc_frame import Day
-import mylib.no_graph_lib as nog
+import nographs as nog
 
 
 class PartA(Day):
@@ -13,20 +13,25 @@ class PartB(PartA):
 
 
 def do(d, size_factor):
-    levels = d.text.splitlines()
-    size = len(levels)
-    high = size * size_factor - 1
+    levels = nog.Array(d.text.splitlines())
+    size = levels.size()[0]
+    limits = levels.limits()
+
+    total_high = size * size_factor - 1  # highest coordinate of complete field made of tiles
+    total_limits = ((0, total_high+1),) * 2
+
+    moves = nog.Position.moves()
 
     def next_edges(p, _):
-        for neighbor in nog.matrix_neighbors(p, ((0, high), (0, high)), no_diagonals=True):
-            x, y = neighbor
-            level = int(levels[y % size][x % size]) + y // size + x // size
+        for neighbor in p.neighbors(moves, total_limits):
+            y, x = neighbor
+            level = int(levels[neighbor.wrap_to_cuboid(limits)]) + y // size + x // size
             while level > 9:
                 level -= 9
             yield neighbor, level
 
     traversal = nog.TraversalShortestPaths(next_edges)
-    traversal.start_from((0, 0)).go_to((high, high))
+    traversal.start_from(nog.Position.at(0, 0)).go_to(nog.Position.at(total_high, total_high))
     return traversal.distance
 
 

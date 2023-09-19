@@ -1,43 +1,39 @@
 import functools
 import operator
 from mylib.aoc_frame import Day
-import mylib.no_graph_lib as nog
+import nographs as nog
 
 
 class PartA(Day):
     def parse(self, text, d):  # store puzzle parsing result data into attributes of d
-        d.depth = [[int(n) for n in line] for line in text.splitlines()]
-        d.len_y, d.len_x = len(d.depth), len(d.depth[0])
+        depth = [[int(n) for n in line] for line in text.splitlines()]
+        d.array = nog.Array(depth)
+        d.limits = d.array.limits()
+        d.moves = nog.Position.moves()
 
-    def neighbors(self, p, d):
-        py, px = p
-        for my, mx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            y, x = py + my, px + mx
-            if 0 <= y < d.len_y and 0 <= x < d.len_x:
-                yield y, x
-
-    def lows(self, d):
-        for yp in range(d.len_y):
-            for xp in range(d.len_x):
-                if all(d.depth[yp][xp] < d.depth[y][x] for y, x in self.neighbors((yp, xp), d)):
-                    yield (yp, xp)
+    def low_positions(self, d):
+        for pos, depth_at_pos in d.array.items():
+            if all(depth_at_pos < d.array[neighbor]
+                   for neighbor in pos.neighbors(d.moves, d.limits)):
+                yield pos
 
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
-        return sum(d.depth[y][x] + 1 for (y, x) in self.lows(d))
+        return sum(d.array[pos] + 1 for pos in self.low_positions(d))
 
 
 class PartB(PartA):
     def compute(self, d):  # return puzzle result, get parsing data from attributes of d
         sizes = []
-        for (yl, xl) in self.lows(d):
-            def next_p(p, _):
-                (yp, xp) = p
-                for (y, x) in self.neighbors((yp, xp), d):
-                    if d.depth[y][x] != 9 and d.depth[y][x] > d.depth[yp][xp]:
-                        yield (y, x)
+        for low_pos in self.low_positions(d):
+            def next_p(pos, _):
+                pos_depth = d.array[pos]
+                for neighbor in pos.neighbors(d.moves, d.limits):
+                    neighbor_depth = d.array[neighbor]
+                    if neighbor_depth != 9 and neighbor_depth > pos_depth:
+                        yield neighbor
 
             traversal = nog.TraversalDepthFirst(next_p)
-            size = sum(1 for p in traversal.start_from((yl, xl)).go()) + 1
+            size = sum(1 for p in traversal.start_from(low_pos)) + 1
             sizes.append(size)
         return functools.reduce(operator.mul, sorted(sizes)[-3:])
 
