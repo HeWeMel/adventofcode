@@ -69,17 +69,20 @@ class PartB(PartA):
             for variant in self.generate(s, rules_backwards):
                 yield variant, 1
 
-        def heuristic(s):
-            """ The estimation for the costs to the goal is the number
-            of characters we still have to reduce to come to the
-            one-character goal string. """
+        def min_cost_heuristic(s):
+            """ Lower bound for the costs to the goal is the number.
+
+            Here (wrong): The number of characters, that we still have to reduce
+            to come to the one-character goal string. This works for my input
+            and is very fast. But it is not a correct lower bound.
+            """
             return len(s) - 1
 
         # We use the A-star traversal strategy to find the weight-shortest path from the
         # medicine back to the "e"-string. Since the weight of each edge is one, we
         # find the shortest paths in the number of edges (number of rules applied).
         t = nog.TraversalAStar(next_edges)
-        for m in t.start_from(heuristic, d.medicine):
+        for m in t.start_from(min_cost_heuristic, d.medicine):
             if m == "e":
                 return t.depth
         return None
