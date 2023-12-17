@@ -15,6 +15,9 @@ def parse(text: str):
 
 
 class PartA(Day):
+    max_in_same_direction = 3
+    min_in_same_direction = 0
+
     def compute(self, text, config):
         def next_edges(state: State, _) -> Iterable[tuple[State, int]]:
             pos, prev_direction, prev_count = state
@@ -23,38 +26,11 @@ class PartA(Day):
                 if d == prev_direction * -1:
                     # turn forbidden
                     continue
-                if d == prev_direction and prev_count == 3:
-                    # d would be the fifth step in this direction
+                if d == prev_direction and prev_count == self.max_in_same_direction:
+                    # to much steps in this direction
                     continue
-                yield ((pos_to, d, prev_count + 1 if d == prev_direction else 1),
-                       int(a[pos_to]))
-
-        a, limits, moves, start_position, goal_position = parse(text)
-        t = nog.TraversalShortestPaths(next_edges)
-        for pos, prev_direction, prev_count in t.start_from(
-                (start_position, nog.Position((0, 0)), 0)):
-            if pos == goal_position:
-                return t.distance
-        raise RuntimeError()
-
-    def tests(self):
-        yield self.test_solve(example, None), 102, "example"
-
-
-class PartB(PartA):
-    def compute(self, text, config):
-        def next_edges(state: State, _) -> Iterable[tuple[State, int]]:
-            pos, prev_direction, prev_count = state
-            for pos_to in pos.neighbors(moves, limits):
-                d = pos_to - pos
-                if d == prev_direction * -1:
-                    # turn forbidden
-                    continue
-                if d == prev_direction and prev_count == 10:
-                    # d would be the eleventh step in this direction
-                    continue
-                if prev_direction != d and prev_count < 4:
-                    # d is a turn - but there already is one in the previous 4 steps
+                if prev_direction != d and prev_count < self.min_in_same_direction:
+                    # d is a turn - but there are not enough straight moves so far
                     continue
                 yield ((pos_to, d, prev_count + 1 if d == prev_direction else 1),
                        int(a[pos_to]))
@@ -65,11 +41,19 @@ class PartB(PartA):
                (start_position, nog.Position((0, 0)), 5)):
             if pos != goal_position:
                 continue
-            if prev_count < 4:
+            if prev_count < self.min_in_same_direction:
                 # there need to be 5 consecutive steps in the same direction
                 continue
             return t.distance
         raise RuntimeError()
+
+    def tests(self):
+        yield self.test_solve(example, None), 102, "example"
+
+
+class PartB(PartA):
+    max_in_same_direction = 10
+    min_in_same_direction = 4
 
     def tests(self):
         yield self.test_solve(example, None), 94, "example"
