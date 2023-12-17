@@ -2,7 +2,7 @@ from typing import Iterable
 from mylib.aoc_frame2 import Day
 import nographs as nog
 
-State = tuple[nog.Position, tuple[nog.Position, ...]]  # position, previous directions
+State = tuple[nog.Position, nog.Position, int]  # position, previous direction, count
 
 
 def parse(text: str):
@@ -17,22 +17,22 @@ def parse(text: str):
 class PartA(Day):
     def compute(self, text, config):
         def next_edges(state: State, _) -> Iterable[tuple[State, int]]:
-            pos, history = state
+            pos, prev_direction, prev_count = state
             for pos_to in pos.neighbors(moves, limits):
                 d = pos_to - pos
-                prev_d = history[-1]
-                if d == prev_d * -1:
+                if d == prev_direction * -1:
                     # turn forbidden
                     continue
-                if all(history_d == d for history_d in history):
-                    # d would be the eleventh step in this direction
+                if d == prev_direction and prev_count == 3:
+                    # d would be the fifth step in this direction
                     continue
-                new_history = history[1:] + (d,)
-                yield (pos_to, new_history), int(a[pos_to])
+                yield ((pos_to, d, prev_count + 1 if d == prev_direction else 1),
+                       int(a[pos_to]))
 
         a, limits, moves, start_position, goal_position = parse(text)
         t = nog.TraversalShortestPaths(next_edges)
-        for pos, history in t.start_from((start_position, ((0, 0), (0, 0), (0, 0)))):
+        for pos, prev_direction, prev_count in t.start_from(
+                (start_position, nog.Position((0, 0)), 0)):
             if pos == goal_position:
                 return t.distance
         raise RuntimeError()
@@ -44,32 +44,29 @@ class PartA(Day):
 class PartB(PartA):
     def compute(self, text, config):
         def next_edges(state: State, _) -> Iterable[tuple[State, int]]:
-            pos, history = state
+            pos, prev_direction, prev_count = state
             for pos_to in pos.neighbors(moves, limits):
                 d = pos_to - pos
-                prev_d = history[-1]
-                if d == prev_d * -1:
+                if d == prev_direction * -1:
                     # turn forbidden
                     continue
-                if all(history_d == d for history_d in history):
+                if d == prev_direction and prev_count == 10:
                     # d would be the eleventh step in this direction
                     continue
-                if (prev_d != d and
-                        not all(history_d == prev_d for history_d in history[6:-1])):
+                if prev_direction != d and prev_count < 4:
                     # d is a turn - but there already is one in the previous 4 steps
                     continue
-                new_history = history[1:] + (d,)
-                yield (pos_to, new_history), int(a[pos_to])
+                yield ((pos_to, d, prev_count + 1 if d == prev_direction else 1),
+                       int(a[pos_to]))
 
         a, limits, moves, start_position, goal_position = parse(text)
         t = nog.TraversalShortestPaths(next_edges)
-        for pos, history in t.start_from(
-                (start_position, tuple((0, 0) for i in range(10)))
-        ):
+        for pos, prev_direction, prev_count in t.start_from(
+               (start_position, nog.Position((0, 0)), 5)):
             if pos != goal_position:
                 continue
-            prev_d = history[-1]
-            if not all(history_d == prev_d for history_d in history[6:-1]):#
+            if prev_count < 4:
+                # there need to be 5 consecutive steps in the same direction
                 continue
             return t.distance
         raise RuntimeError()
