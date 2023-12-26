@@ -1,0 +1,78 @@
+4 Hailstones, x/y/z, dx, dy, dz:
+(12 equations, 10 variables)
+
+x + a * s = 189341339504540 + 44 * s,
+y + b * s = 290333883549401 + -109 * s,
+z + c * s = 236775349559992 + -75 * s,
+x + a * t = 382809565923580 + 24 * t,
+y + b * t = 304303562800484 + -28 * t,
+z + c * t = 433267926327686 + -97 * t,
+x + a * u = 271203849270337 + 97 * u,
+y + b * u = 271525931728557 + 7 * u,
+z + c * u = 339148078621918 + -53 * u,
+x + a * v = 233056177886450 + 74 * v,
+y + b * v = 93217850962625 + 431 * v,
+z + c * v = 375785289554318 + -274 * v,
+
+Wolfram Alpha
+
+s = 206377390867 and t = 859276282597 and u = 634029517511 and w = 414319724650 and
+x = 133619443970450 and y = 263917577518425 and z = 180640699244168 and
+a = 314 and b = 19 and c = 197
+
+x+y+z = 578177720733043
+
+--------- Z3 ----------------
+https://microsoft.github.io/z3guide/playground/Freeform%20Editing
+https://microsoft.github.io/z3guide/docs/logic/basiccommands
+
+(declare-const x Real)
+(declare-const y Real)
+(declare-const z Real)
+(declare-const a Real)
+(declare-const b Real)
+(declare-const c Real)
+(declare-const s Real)
+(declare-const t Real)
+(declare-const u Real)
+(declare-const v Real)
+(assert (= (+ x (* a s)) (+ 189341339504540 (* 44 s))))
+(assert (= (+ y (* b s)) (+ 290333883549401 (* (- 0 109) s))))
+(assert (= (+ z (* c s)) (+ 236775349559992 (* (- 0 75) s))))
+(assert (= (+ x (* a t)) (+ 382809565923580 (* 24 t))))
+(assert (= (+ y (* b t)) (+ 304303562800484 (* (- 0 28) t))))
+(assert (= (+ z (* c t)) (+ 433267926327686 (* (- 0 97) t))))
+(assert (= (+ x (* a u)) (+ 271203849270337 (* 97 u))))
+(assert (= (+ y (* b u)) (+ 271525931728557 (* 7 u))))
+(assert (= (+ z (* c u)) (+ 339148078621918 (* (- 0 53) u))))
+(assert (= (+ x (* a v)) (+ 233056177886450 (* 74 v))))
+(assert (= (+ y (* b v)) (+ 93217850962625 (* 431 v))))
+(assert (= (+ z (* c v)) (+ 375785289554318 (* (- 0 274) v))))
+(check-sat)
+(get-model)
+
+Output:
+
+sat
+(
+  (define-fun t () Real
+    859276282597.0)
+  (define-fun a () Real
+    314.0)
+  (define-fun b () Real
+    19.0)
+  (define-fun c () Real
+    197.0)
+  (define-fun u () Real
+    634029517511.0)
+  (define-fun v () Real
+    414319724650.0)
+  (define-fun s () Real
+    206377390867.0)
+  (define-fun z () Real
+    180640699244168.0)
+  (define-fun x () Real
+    133619443970450.0)
+  (define-fun y () Real
+    263917577518425.0)
+)
